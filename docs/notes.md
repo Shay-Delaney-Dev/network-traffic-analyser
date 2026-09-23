@@ -109,3 +109,46 @@ Key Components:
 - put_nowait() raises Full exception if the queue is full, caught by error handling and the dropped packets counter is incremented by 1 instead of crashing.
 - put_nowait() is used over put() due to performance, put() blocks until space is available which would slow the capture threads speed down to match the consumer threads speed. In this instance it is better to drop packets than to slow capture.
 - the lock on _dropped_packets prevents lost increment operations occuring in the instance of multiple threads accessing the same counter simultaenously and one operation never completing (race condition).
+
+# analyser.py
+
+Building Protocol Identification
+
+Due to the fact that scapy packets are nested layer objects, we need to identify the highest-level protocol and extract the relevant fields without hardcoding every single possible protocol combination. 
+
+To do this, we work our way through the layers starting from the application layer (highest) to the link layer (lowest), and return the first match. This order is crucial to enable more specific protocol classification.
+
+This analyser checks for DNS, TCP, HTTP, HTTPS, UDP, ICMP, ARP, and returns "OTHER" in the case where an unknown protocol is detected - preventing crashes and ensuring accurate statistics.
+
+```
+def identify_protocol(packet: Packet) -> Protocol:
+    if packet.haslayer(DNS):
+        return Protocol.DNS
+
+    if packet.haslayer(TCP):
+        tcp_layer = packet[TCP]
+        if tcp_layer.dport == Ports.HTTP or tcp_layer.sport == Ports.HTTP:
+            return Protocol.HTTP
+        if tcp_layer.dport == Ports.HTTPS or tcp_layer.sport == Ports.HTTPS:
+            return Protocol.HTTPS
+        return Protocol.TCP
+
+    if packet.haslayer(UDP):
+        udp_layer = packet[UDP]
+        if udp_layer.dport == Ports.DNS or udp_layer.sport == Ports.DNS:
+            return Protocol.DNS
+        return Protocol.UDP
+
+    if packet.haslayer(ICMP):
+        return Protocol.ICMP
+
+    if packet.haslayer(ARP):
+        return Protocol.ARP
+
+    return Protocol.OTHER
+```
+
+Key Components:
+- DNS detction first: DNS can run over TCP/UDP. Check for DNS layer before checking transport protocol, otherwise DNS Over TCP would be classified as just TCP.
+- Port-based protocol detection: HTTP and HTTPS are just TCP with specific ports, requires checking ports (source + destination) to classify further.
+- Unknown protocols returns other as a fallback to prevent crash, counted seperately in statistics.
