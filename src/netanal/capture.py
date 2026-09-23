@@ -16,3 +16,37 @@ class CaptureEngine:
         self._dropped_packets = 0
         self._running = False
         self._count_lock = threading.Lock()
+
+    def start(self) -> None:
+        if self._running:
+            return
+
+        self._running = True
+        self._stop_event.clear()
+
+        with self._count_lock:
+            self._packet_count = 0
+            self._dropped_packets = 0
+
+        self._stats.reset()
+        self._stats.start()
+
+        self._processor_thread = threading.Thread(
+            target = self._process_packets,
+            daemon = True,
+        )
+        self._processor_thread.start()
+
+        sniffer_kwargs: dict[str, object] = {
+            "prn": self._enqueue_packet,
+            "store": self._config.store_packets,
+        }
+
+        if self._config.interface:
+            sniffer_kwargs["iface"] = self._config.interface
+
+        if self._config.bpf_filter:
+            sniffer_kwargs["filter"] = self._config.bpf_filter
+
+        self._sniffer = AsyncSniffer(**sniffer_kwargs)
+        self._sniffer.start()
