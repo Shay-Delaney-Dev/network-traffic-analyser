@@ -85,3 +85,27 @@ Key Components:
 - Build sniffer_kwargs dictionary conditionally, including only non-None config values.
 - Pass _enqueue_packet as callback (prn parameter).
 - AsyncSniffer.start() spawns the producer thread internally. 
+
+Step 3: Producer Callback
+
+The producer callback runs in Scapy's capture thread for every packet, handling adding packets to the queue without blocking. 
+
+We make sure to catch exceptions if the queue is full, and handle it gracefully by incrementing the dropped packets counter by 1, this prevents crashing. There is also a lock on the dropped packets counter, preventing race conditions from causing inaccuracies in our counter when two threads attempt to access it simulteanously.
+
+Additionally, we used put_nowait() instead of put() which blocks until space is available. This would result in our capture thread slowing to the speed of our processing thread. In this instance losing the occasional packet is preferable to slowing the rate of packet capture. 
+
+```
+    def _enqueue_packet(self, packet: Packet) -> None:
+        try:
+            self._queue.put_nowait(packet)
+        except Full:
+            with self._count_lock:
+                self._dropped_packets += 1
+```
+
+Key Components:
+- Runs in Scapy's capture thread for every packet.
+- Handles adding packets to the queue without blocking.
+- put_nowait() raises Full exception if the queue is full, caught by error handling and the dropped packets counter is incremented by 1 instead of crashing.
+- put_nowait() is used over put() due to performance, put() blocks until space is available which would slow the capture threads speed down to match the consumer threads speed. In this instance it is better to drop packets than to slow capture.
+- the lock on _dropped_packets prevents lost increment operations occuring in the instance of multiple threads accessing the same counter simultaenously and one operation never completing (race condition).

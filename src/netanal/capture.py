@@ -50,3 +50,10 @@ class CaptureEngine:
 
         self._sniffer = AsyncSniffer(**sniffer_kwargs)
         self._sniffer.start()
+
+    def _enqueue_packet(self, packet: Packet) -> None:
+        try:
+            self._queue.put_nowait(packet)
+        except Full:
+            with self._count_lock:
+                self._dropped_packets += 1
