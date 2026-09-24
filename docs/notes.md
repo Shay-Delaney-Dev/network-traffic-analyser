@@ -152,3 +152,44 @@ Key Components:
 - DNS detction first: DNS can run over TCP/UDP. Check for DNS layer before checking transport protocol, otherwise DNS Over TCP would be classified as just TCP.
 - Port-based protocol detection: HTTP and HTTPS are just TCP with specific ports, requires checking ports (source + destination) to classify further.
 - Unknown protocols returns other as a fallback to prevent crash, counted seperately in statistics.
+
+# statistics.py
+
+As previosuly mentioned, there is a risk of lost increments on counters and corrupted dicts being caused by multiple threads updating the same statistics simultaneously, leading to a race condition. To solve this issue, we use a single lock to protect all shared state, keeping "critical sections" (code under lock) as short as possible.
+
+The lock blocks if another thread holds it, preventing the race condition problem mentioned previously. Then, all counter updates happen automatically, with helper methods such as updating endpoints operating under the same lock. The lock then automatically releases when exiting the block, even on exception. 
+
+Without this lock, when the capture experiences a high load, counters will be lower than the actual packet count because increments get lost due to unhandled race conditions. This also means that protocol distrubutions wont add up to 100% and that endpoint statistics will have incorrect totals. This would make our tool significantly less reliable and useful.
+
+
+```
+def record_packet(self, packet: PacketInfo) -> None:
+    with self._lock:
+        self._total_packets += 1
+        self._total_bytes += packet.size
+        self._interval_packets += 1
+        self._interval_bytes += packet.size
+
+        self._protocol_counts[packet.protocol] += 1
+        self._protocol_bytes[packet.protocol] += packet.size
+
+        self._update_endpoint(packet.src_ip, sent_bytes = packet.size)
+        self._update_endpoint(
+            packet.dst_ip,
+            received_bytes = packet.size
+        )
+
+        self._update_conversation(
+            packet.src_ip,
+            packet.dst_ip,
+            packet.size
+        )
+
+        self._check_bandwidth_sample(packet.timestamp)
+```
+
+Key Components:
+1. with self._lock: acquires the lock, blocking if another thread holds it.
+2. All counter updates happen automatically.
+3. Helper methods (_update_endpoint, etc) run under the same lock.
+4. Lock automatically releases when exiting the block (even on exception)
