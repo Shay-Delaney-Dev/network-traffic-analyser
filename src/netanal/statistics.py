@@ -21,3 +21,20 @@ def record_packet(self, packet: PacketInfo) -> None:
         )
 
         self._check_bandwidth_sample(packet.timestamp)
+
+def _check_bandwidth_sample(self, timestamp: float) -> None:
+    if timestamp - self._last_sample_time >= self._bandwidth_interval:
+        elapsed = timestamp - self._last_sample_time
+        if elapsed > 0:
+            bps = self._interval_bytes / elapsed
+            pps = self._interval_packets / elapsed
+            self._bandwidth_samples.append(
+                BandwidthSample(
+                    timestamp = timestamp
+                    bytes_per_second = bps,
+                    packets_per_second = pps,
+                )
+            )
+        self._interval_bytes = 0
+        self._interval_packets = 0
+        self._last_sample_time = timestamp
