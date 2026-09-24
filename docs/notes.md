@@ -155,6 +155,8 @@ Key Components:
 
 # statistics.py
 
+Thread-Safe statistics collection
+
 As previosuly mentioned, there is a risk of lost increments on counters and corrupted dicts being caused by multiple threads updating the same statistics simultaneously, leading to a race condition. To solve this issue, we use a single lock to protect all shared state, keeping "critical sections" (code under lock) as short as possible.
 
 The lock blocks if another thread holds it, preventing the race condition problem mentioned previously. Then, all counter updates happen automatically, with helper methods such as updating endpoints operating under the same lock. The lock then automatically releases when exiting the block, even on exception. 
@@ -193,3 +195,26 @@ Key Components:
 2. All counter updates happen automatically.
 3. Helper methods (_update_endpoint, etc) run under the same lock.
 4. Lock automatically releases when exiting the block (even on exception)
+
+Bandwidth Sampling
+
+Here we sample bandwidth at 1 second intervals (can be configured). Each sample calculates the bytes/sec (bps) and packets/sec (pps) from the counters and then resets them for the next interval. The timestamp is taken from the packets and not the system clock, this is more reliable as the bandwidth calculation will match packet timing exactly, even if clock drifts or the system pauses. 
+
+```
+def _check_bandwidth_sample(self, timestamp: float) -> None:
+    if timestamp - self._last_sample_time >= self._bandwidth_interval:
+        elapsed = timestamp - self._last_sample_time
+        if elapsed > 0:
+            bps = self._interval_bytes / elapsed
+            pps = self._interval_packets / elapsed
+            self._bandwidth_samples.append(
+                BandwidthSample(
+                    timestamp = timestamp
+                    bytes_per_second = bps,
+                    packets_per_second = pps,
+                )
+            )
+        self._interval_bytes = 0
+        self._interval_packets = 0
+        self._last_sample_time = timestamp
+```
