@@ -147,3 +147,19 @@ class CaptureEngine:
             self._running = False
             return self._stats.get_statistics()
 
+        @property
+        def statistics(self) -> CaptureStatistics:
+            """ Get current statistics snapshot. """
+            return self._stats.get_statistics()
+
+        @property
+        def is_running(self) -> bool:
+            """ Check if capture is currently running. """
+            return self._running
+
+        @property
+        def dropped_packets(self) -> int:
+            """ Get count of packets dropped. """
+            with self._count_lock:
+                return self._dropped_packets
+
