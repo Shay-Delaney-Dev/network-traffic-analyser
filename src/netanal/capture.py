@@ -76,6 +76,7 @@ class CaptureEngine:
                 break
 
     def start(self) -> None:
+        """ Start packet capture. """
         if self._running:
             return
 
@@ -105,6 +106,12 @@ class CaptureEngine:
 
         if self._config.bpf_filter:
             sniffer_kwargs["filter"] = self._config.bpf_filter
+
+        if self._config.packet_count:
+            sniffer_kwargs["count"] = self._config.packet_count
+
+        if self._config.timeout_seconds:
+            sniffer_kwargs["timeout"] = self._config.timeout_seconds
 
         self._sniffer = AsyncSniffer(**sniffer_kwargs)
         self._sniffer.start()
