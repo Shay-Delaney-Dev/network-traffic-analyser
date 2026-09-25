@@ -131,3 +131,19 @@ class CaptureEngine:
         self._running = False
         return self._stats.get_statistics()
 
+    def wait(self) -> CaptureStatistics:
+        """ Wait for capture to complete and return statistics. """
+        if self._sniffer:
+            with contextlib.suppress(AttributeError):
+                self._sniffer.join()
+
+        self._stop_event.set()
+
+        if self._processor_thread and self._processor_thread.is_alive():
+            self._processor_thread.join(
+                timeout=CaptureDefaults.THREAD_JOIN_TIMEOUT_SECONDS
+            )
+
+            self._running = False
+            return self._stats.get_statistics()
+
