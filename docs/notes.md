@@ -223,7 +223,7 @@ def _check_bandwidth_sample(self, timestamp: float) -> None:
 
 BPF Filter Building
 
-BPF syntax is very error prone, and typos can very easily lead to syntax errors. There is also the potential for filter injection vulnerabilities, creating the need for a solution. In this case, the solution is a builder patterb with type-safe methods and input validation. An important detail is returning self in each method, this enables method building. 
+BPF syntax is very error prone, and typos can very easily lead to syntax errors. There is also the potential for filter injection vulnerabilities, creating the need for a solution. In this case, the solution is a builder pattern with type-safe methods and input validation. An important detail is returning self in each method, this enables method building. 
 
 Its also important to note the wrapping of expressions in parenthesis seen in the below code, this ensures correct parsing with BPF's operator precedence rules. 
 
