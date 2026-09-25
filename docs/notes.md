@@ -218,3 +218,43 @@ def _check_bandwidth_sample(self, timestamp: float) -> None:
         self._interval_packets = 0
         self._last_sample_time = timestamp
 ```
+
+# filters.py
+
+BPF Filter Building
+
+BPF syntax is very error prone, and typos can very easily lead to syntax errors. There is also the potential for filter injection vulnerabilities, creating the need for a solution. In this case, the solution is a builder patterb with type-safe methods and input validation. An important detail is returning self in each method, this enables method building. 
+
+Its also important to note the wrapping of expressions in parenthesis seen in the below code, this ensures correct parsing with BPF's operator precedence rules. 
+
+```
+@dataclass(slots = True)
+class FilterBuilder:
+    _expressions: list[str]
+
+    def __init__(self) -> None:
+        self._expressions = []
+
+    def protocol(self, proto: Protocol) -> FilterBuilder:
+        bpf_expr = BPF_PROTOCOL_MAP.get(proto)
+        if bpf_expr:
+            self._expressions.append(f"({bpf_expr})")
+        return self
+
+    def port(self, port_number: int) -> FilterBuilder:
+        _validate_port(port_number)
+        self._expressions.append(f"port {sport_number}")
+        return self
+
+    def host(self, ip_address: str) -> FilterBuilder:
+        _validate_ip_address(ip_address)
+        self._expressions.append(f"host {ip_address}")
+        return self
+
+    def build(self, operator: Literal["and", "or"] = "and") -> str | None:
+        if not self._expressions:
+            return None
+        return f" {operator} ".join(self._expressions)
+```
+
+We also need to validate both ports and ip addresses to ensure they are in the correct range and parse correctly. This is designed to fail fast and provide clear error messages before passing to the kernel.
