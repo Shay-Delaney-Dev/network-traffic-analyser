@@ -41,11 +41,39 @@ class CaptureEngine:
         self._count_lock = threading.Lock()
 
     def _enqueue_packet(self, packet: Packet) -> None:
+        """ Callback for AsyncSniffer to add captured packets to the queue. """
         try:
             self._queue.put_nowait(packet)
         except Full:
             with self._count_lock:
                 self._dropped_packets += 1
+
+    def _process_packets(self) -> None:
+        """ Consumer thread that processes packets from the queue. """
+        while not self._stop_event.is_set():
+            try:
+                packet = self._queue.get(
+                    timeout=CaptureDefaults.QUEUE_TIMEOUT_SECONDS
+                )
+            except Empty:
+                continue
+
+            info = extract_packet_info(packet)
+            if info is None:
+                continue
+
+            self._stats.record_packet(info)
+
+            with self._count_lock:
+                self._packet_count += 1
+                current_count = self._packet_count
+
+            if self._on_packet:
+                self._on_packet(info)
+
+            if self._config.packet_count and current_count >= self._config.packet_count:
+                self._stop_event.set()
+                break
 
     def start(self) -> None:
         if self._running:
