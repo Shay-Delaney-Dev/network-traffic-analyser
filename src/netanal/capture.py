@@ -163,3 +163,38 @@ class CaptureEngine:
             with self._count_lock:
                 return self._dropped_packets
 
+class GracefulCapture:
+    """ Context manager for graceful capture with signal handling. """
+
+    def __init__(self, engine: CaptureEngine) -> None:
+        """Init with capture engine. """
+        self._engine = engine
+        self._original_sigint: object = None
+        self._original_sigterm: object = None
+
+    def __enter__(self) -> CaptureEngine:
+        """ Set up signal handlers and start capture. """
+        self._original_sigint = signal.signal(
+            signal.SIGINT,
+            self._handle_signal
+        )
+        self._original_sigterm = signal.signal(
+            signal.SIGTERM,
+            self._handle_signal
+        )
+        self._engine.start()
+        return self._engine
+
+    def __exit__(
+        self,
+        exc_type: type | None,
+        exc_val: Exception | None,
+        exc_tb: object,
+    ) -> None:
+        """ Restore signal handlers and stop capture. """
+        if self._original_sigint:
+            signal.signal(signal.SIGINT, self._original_sigint) # type: ignore[arg-type]
+        if self._original_sigterm:
+            signal.signal(signal.SIGTERM, self._original_sigterm) # type: ignore[arg-type]
+        self._engine.stop()
+
