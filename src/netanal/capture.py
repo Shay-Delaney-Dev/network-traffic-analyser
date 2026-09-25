@@ -201,5 +201,4 @@ class GracefulCapture:
     def _handle_signal(self, _signum: int, _frame: object) -> None:
         """ Handle interrupt signals gracefully. """
         self._engine.stop()
-        sys.exit(0)
-
+        sys.exit(0) 
