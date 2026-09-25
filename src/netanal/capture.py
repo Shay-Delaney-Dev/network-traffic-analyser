@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from scapy.packet import Packet
 
 class CaptureEngine:
+    """ Packet capture engine using Scapy with producer-consumer pattern. """
     def __init__(
             self,
             config: CaptureConfig,
@@ -38,6 +39,13 @@ class CaptureEngine:
         self._dropped_packets = 0
         self._running = False
         self._count_lock = threading.Lock()
+
+    def _enqueue_packet(self, packet: Packet) -> None:
+        try:
+            self._queue.put_nowait(packet)
+        except Full:
+            with self._count_lock:
+                self._dropped_packets += 1
 
     def start(self) -> None:
         if self._running:
@@ -73,9 +81,3 @@ class CaptureEngine:
         self._sniffer = AsyncSniffer(**sniffer_kwargs)
         self._sniffer.start()
 
-    def _enqueue_packet(self, packet: Packet) -> None:
-        try:
-            self._queue.put_nowait(packet)
-        except Full:
-            with self._count_lock:
-                self._dropped_packets += 1
