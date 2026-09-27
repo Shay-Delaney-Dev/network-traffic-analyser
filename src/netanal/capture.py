@@ -202,3 +202,4 @@ class GracefulCapture:
         """ Handle interrupt signals gracefully. """
         self._engine.stop()
         sys.exit(0) 
+
