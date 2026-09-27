@@ -147,21 +147,21 @@ class CaptureEngine:
             self._running = False
             return self._stats.get_statistics()
 
-        @property
-        def statistics(self) -> CaptureStatistics:
-            """ Get current statistics snapshot. """
-            return self._stats.get_statistics()
+    @property
+    def statistics(self) -> CaptureStatistics:
+        """ Get current statistics snapshot. """
+        return self._stats.get_statistics()
 
-        @property
-        def is_running(self) -> bool:
-            """ Check if capture is currently running. """
-            return self._running
+    @property
+    def is_running(self) -> bool:
+        """ Check if capture is currently running. """
+        return self._running
 
-        @property
-        def dropped_packets(self) -> int:
-            """ Get count of packets dropped. """
-            with self._count_lock:
-                return self._dropped_packets
+    @property
+    def dropped_packets(self) -> int:
+        """ Get count of packets dropped. """
+        with self._count_lock:
+            return self._dropped_packets
 
 class GracefulCapture:
     """ Context manager for graceful capture with signal handling. """
@@ -226,6 +226,15 @@ def capture_packets(
 
 def get_available_interfaces() -> list[str]:
     """ Get list of available network interfaces. """
+    try:
+        from scapy.interfaces import get_if_list
+
+        return list(get_if_list())
+    except ImportError:
+        return []
+
+def check_capture_permissions() -> tuple[bool, str]:
+    """ Check if current user has permissions for packet capture. """
     system = platform.system()
 
     if system == "Linux":
