@@ -203,3 +203,103 @@ class GracefulCapture:
         self._engine.stop()
         sys.exit(0) 
 
+def capture_packets(
+    interface: str | None = None,
+    bpf_filter: str | None = None,
+    count: int | None = None,
+    timeout: float | None = None,
+    on_packet: Callable[[PacketInfo],
+                        None] | None = None,
+) -> CaptureStatistics:
+    """ Helper method to capture packets with default settings. """
+    config = CaptureConfig(
+        interface=interface,
+        bpf_filter=bpf_filter,
+        packet_count=count,
+        timeout_seconds=timeout,
+    )
+
+    engine = CaptureEngine(config=config, on_packet=on_packet)
+
+    with GracefulCapture(engine):
+        return engine.wait()
+
+def get_available_interfaces() -> list[str]:
+    """ Get list of available network interfaces. """
+    system = platform.system()
+
+    if system == "Linux":
+        return _check_linux_permissions()
+    elif system == "Darwin":
+        return _check_macos_permissions()
+    elif system == "Windows":
+        return _check_windows_permissions()
+
+    return False, f"Unknown platform: {system}"
+
+def _check_linux_permissions() -> tuple[bool, str]:
+    """ Check Linux permissions for packet capture by testing raw socket creation. """
+    if os.geteuid() == 0:
+        return True, "Running as root"
+
+    try:
+        sock = socket.socket(
+            socket.AF_PACKET,
+            socket.SOCK_RAW,
+            socket.htons(0x0003),
+        )
+        sock.close()
+        return True, "Has CAP_NET_RAW capability"
+    except PermissionError:
+        return False, "Requires root or CAP_NET_RAW capability"
+    except OSError as e:
+        return False, f"Socket error: {e}"
+
+def _check_macos_permissions() -> tuple[bool, str]:
+    """ Check macOS permissions for packet capture by testing BPF device access. """
+    if os.geteuid == 0:
+        return True, "Running as root"
+
+    bpf_devices = Path("/dev").glob("bpf*")
+    for device in bpf_devices:
+        if os.access(str(device), os.R_OK | os.W_OK):
+            return True, f"Has acess to {device}"
+
+    return False, "Requires root or access to /dev/bpf* (install Wireshark or ChmodBPF)"
+
+def _check_windows_permissions() -> tuple[bool, str]:
+    """ Check windows permissions for packet capture. """
+    npcap_installed = _check_npcap_installed()
+
+    if not npcap_installed:
+        return False, "Npcap is not installed (download from npcap.com)"
+
+    is_admin = _check_windows_admin()
+
+    if not is_admin:
+        return False, "Requires administrator priveleges"
+
+    return True, "Running as administrator with Npcap"
+
+def _check_npcap_installed() -> bool:
+    """ Check if Npcap DLL exists on Windows. """
+    npcap_paths = [NpcapPaths.SYSTEM32, NpcapPaths.SYSWOW64]
+    return any(Path(p).exists() for p in npcap_paths)
+
+def _check_windows_admin() -> bool:
+    """ Check if running as an Administrator on Windows. """
+    try:
+        import ctypes
+
+        return ctypes.windll.shell32.IsUserAnAdmin() != 0 # type; ignore[attr-defined,no-any-return]
+    except (AttributeError, OSError):
+        return False
+
+__all__ = [
+    "CaptureConfig",
+    "CaptureEngine",
+    "GracefulCapture",
+    "capture_packets",
+    "check_capture_permissions",
+    "get_available_interfaces",
+]
