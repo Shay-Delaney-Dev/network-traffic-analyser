@@ -202,3 +202,24 @@ class GracefulCapture:
         """ Handle interrupt signals gracefully. """
         self._engine.stop()
         sys.exit(0) 
+
+    def capture_packets(
+        interface: str | None = None,
+        bpf_filter: str | None = None,
+        count: int | None = None,
+        timeout: float | None = None,
+        on_packet: Callable[[PacketInfo],
+                            None] | None = None,
+    ) -> CaptureStatistics:
+        """ Helper method to capture packets with default settings. """
+        config = CaptureConfig(
+            interface=interface,
+            bpf_filter=bpf_filter,
+            packet_count=count,
+            timeout_seconds=timeout,
+        )
+
+        engine = CaptureEngine(config=config, on_packet=on_packet)
+
+        with GracefulCapture(engine):
+            return engine.wait()
