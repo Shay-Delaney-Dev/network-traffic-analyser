@@ -33,3 +33,54 @@ def identify_protocol(packet: Packet) -> Protocol:
         return Protocol.ARP
 
     return Protocol.OTHER
+
+def extract_packet_info(packet: Packet) -> PacketInfo | None:
+    """ Extract relevant information from packets. """
+    timestamp = float(packet.time) if hasattr(packet, "time") else 0.0
+    size = len(packet)
+
+    src_mac: str | None = None
+    dst_mac: str | None = None
+    src_ip: str = DefaultIPs.UNKNOWN
+    dst_ip: str = DefaultIPs.UNKNOWN
+    src_port: int | None = None
+    dst_port: int | None = None
+
+    if packet.haslayer(Ether):
+        ether_layer = packet[Ether]
+        src_mac = ether_layer.src
+        dst_mac = ether_layer.dst
+
+    if packet.haslayer(IP):
+        ip_layer = packet[IP]
+        src_ip = ip_layer.src
+        dst_ip = ip_layer.dst
+    elif packet.haslayer(ARP):
+        arp_layer = packet[ARP]
+        src_ip = arp_layer.psrc
+        dst_ip = arp_layer.pdst
+    else:
+        return None
+
+    if packet.haslayer(TCP):
+        tcp_layer = packet[TCP]
+        src_port = tcp_layer.sport
+        dst_port = tcp_layer.dport
+    elif packet.haslayer(UDP):
+        udp_layer = packet[UDP]
+        src_port = udp_layer.sport
+        dst_port = udp_layer.dport
+
+    protocol = identify_protocol(packet)
+
+    return PacketInfo(
+        timestamp=timestamp,
+        src_ip=src_ip,
+        dst_ip=dst_ip,
+        protocol=protocol,
+        size=size,
+        src_port=src_port,
+        dst_port=dst_port,
+        src_mac=src_mac,
+        dst_mac=dst_mac,
+    )
