@@ -245,3 +245,16 @@ def create_bandwidth_chart(
 
     return fig
 
+def save_chart(
+    fig: Figure,
+    filepath: Path,
+    dpi: int = ChartDefaults.DPI
+) -> None:
+    """ Save matplotlib figure to a file. """
+    fig.savefig(
+        filepath,
+        dpi=dpi,
+        bbox_inches="tight",
+        facecolor="white"
+    )
+    plt.close(fig)
