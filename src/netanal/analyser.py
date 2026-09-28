@@ -84,3 +84,30 @@ def extract_packet_info(packet: Packet) -> PacketInfo | None:
         src_mac=src_mac,
         dst_mac=dst_mac,
     )
+
+def extract_dns_info(packet: Packet) -> dict[str, str | list[str]] | None:
+    """ Extract DNS query and response info from a packet. """
+    if not packet.haslayer(DNS):
+        return None
+
+    dns_layer = packet[DNS]
+    info: dict[str, str | list[str]] = {}
+
+    if dns_layer.qr == 0:
+        info["type"] = "query"
+        if dns_layer.qd:
+            info["query_name"] = dns_layer.qd.qname.decode().rstrip(".")
+    else:
+        info["type"] = "response"
+        answers: list[str] = []
+        if dns_layer.an:
+            for i in range(dns_layer.ancount):
+                try:
+                    rr = dns_layer.an[i]
+                    if hasattr(rr, "rdata"):
+                        answers.append(str(rr.rdata))
+                except (IndexError, AttributeError):
+                    continue
+        info["answers"] = answers
+        
+    return info
