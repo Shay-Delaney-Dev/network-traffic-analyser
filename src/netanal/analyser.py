@@ -1,3 +1,13 @@
+from scapy.layers.dns import DNS
+from scapy.layers.inet import (ICMP, IP, TCP, UDP)
+from scapy.layers.l2 import ARP, Ether
+from scapy.packet import Packet
+from scapy.utils import PcapReader
+
+from netanal.constants import DefaultIPs, Ports
+from netanal.models import PacketInfo, Protocol
+
+
 def identify_protocol(packet: Packet) -> Protocol:
     if packet.haslayer(DNS):
         return Protocol.DNS
