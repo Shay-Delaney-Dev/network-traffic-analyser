@@ -100,3 +100,72 @@ def create_protocol_bar_chart(
     plt.tight_layout()
 
     return fig
+
+def create_top_talkers_chart(
+        stats: CaptureStatistics,
+        limit: int = 10,
+        title: str = "Top Talkers by Traffic Volume",
+) -> Figure:
+    """ Create a horizontal bar chart showing top talkers. """
+    fig, ax = plt.subplots(figsize=ChartDefaults.FIGSIZE_TALL)
+
+    top_talkers = stats.get_top_talkers(limit)
+
+    if not top_talkers:
+        ax.text(
+            0.5,
+            0.5,
+            "No data available",
+            ha="center",
+            va="center"
+        )
+        return fig
+
+    ips = [e.ip_address for e in reversed(top_talkers)]
+    sent_bytes = [
+        e.bytes_sent / BytesUnits.BYTES_PER_KB
+        for e in reversed(top_talkers)
+    ]
+    recv_bytes = [
+        e.bytes_received / ByteUnits.BYTES_PER_KB
+        for e in reversed(top_talkers)
+    ]
+
+    y_pos = range(len(ips))
+
+    ax.barh(
+        y_pos,
+        sent_bytes,
+        height=ChartDefaults.BAR_HEIGHT,
+        label="Sent",
+        color=ProtocolColors.HEX["TCP"],
+        edgecolor="black",
+        linewidth=ChartDefaults.LINE_WIDTH_THIN,
+    )
+    ax.barh(
+        [y + ChartDefaults.BAR_HEIGHT for y in y_pos],
+        recv_bytes,
+        height=ChartDefaults.BAR_HEIGHT,
+        label="Received",
+        color=ProtocolColors.HEX["UDP"],
+        edgecolor="black",
+        linewidth=ChartDefaults.LINE_WIDTH_THIN,
+    )
+
+    ax.set_yticks([y + ChartDefaults.BAR_HEIGHT / 2 for y in y_pos])
+    ax.set_yticklabels(ips)
+    ax.set_xlabel(
+        "Traffic (KB)",
+        fontsize=ChartDefaults.FONT_SIZE_MEDIUM
+    )
+    ax.set_ylabel("IP Address", fontsize=ChartDefaults.FONT_SIZE_MEDIUM)
+    ax.set_title(
+        title,
+        fontsize=ChartDefaults.FONT_SIZE_LARGE,
+        fontweight="bold"
+    )
+    ax.legend(loc="lower right")
+    ax.grid(axis="x", alpha=ChartDefaults.GRID_ALPHA)
+    plt.tight_layout()
+
+    return fig
