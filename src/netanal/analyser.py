@@ -135,3 +135,23 @@ def get_packet_summary(packet: Packet) -> str:
     summary_parts.append(f" ({info.size} bytes)")
 
     return "".join(summary_parts)
+
+def analyse_pcap_file(filepath: str) -> list[PacketInfo]:
+    """ Analyse packets from a pcap file using memory efficient PcapReader. """
+    packets: list[PacketInfo] = []
+
+    with PcapReader(filepath) as reader:
+        for packet in reader:
+            info = extract_packet_info(packet)
+            if info:
+                packets.append(info)
+
+    return packets
+
+__all__ = [
+    "analyse_pcap_file",
+    "extract_dns_info",
+    "extract_packet_info",
+    "get_packet_summary",
+    "identify_protocol",
+]
