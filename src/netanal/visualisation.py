@@ -169,3 +169,79 @@ def create_top_talkers_chart(
     plt.tight_layout()
 
     return fig
+
+def create_bandwidth_chart(
+        stats: CaptureStatistics,
+        title: str = "Bandwidth Over Time",
+) -> Figure:
+    """ Create line chart showing bandwidth over time. """
+    fig, ax = plt.subplots(figsize=ChartDefaults.FIGSIZE_WIDE)
+
+    if not stats.bandwidth_samples:
+        ax.text(
+            0.5,
+            0.5,
+            "No bandwidth data available",
+            ha="center",
+            va="center"
+        )
+        return fig
+
+    samples = stats.bandwidth_samples
+    base_time = samples[0].timestamp if samples else 0
+
+    times = [(s.timestamp - base_time) for s in samples]
+    bps = [s.bytes_per_second / ByteUnits.BYTES_PER_KB for s in samples]
+    pps = [s.packets_per_second for s in samples]
+
+    ax.plot(
+        times,
+        bps,
+        color=ProtocolColors.HEX["TCP"],
+        linewidth=ChartDefaults.LINE_WIDTH_NORMAL,
+        label="Bandwidth (KB/s)",
+        marker="o",
+        markersize=ChartDefaults.MARKER_SIZE,
+    )
+
+    ax2 = ax.twinx()
+    ax2.plot(
+        times,
+        pps,
+        color=ProtocolColors.HEX["HTTP"],
+        linewidth=ChartDefaults.LINE_WIDTH_NORMAL,
+        label="Packet/s",
+        linestyle="--",
+        marker="s",
+        markersize=ChartDefaults.MARKER_SIZE,
+    )
+
+    ax.set_xlabel(
+        "Time (seconds)",
+        fontsize=ChartDefaults.FONT_SIZE_MEDIUM
+    )
+    ax.set_ylabel(
+        "Bandwidth (KB/s)",
+        fontsize=ChartDefaults.FONT_SIZE_MEDIUM,
+        color=ProtocolColors.HEX["TCP"]
+    )
+    ax.set_ylabel(
+        "Packets/s",
+        fontsize=ChartDefaults.FONT_SIZE_MEDIUM,
+        color=ProtocolColors.HEX["HTTP"]
+    )
+    ax.set_title(
+        title,
+        fontsize=ChartDefaults.FONT_SIZE_LARGE,
+        fontweight="bold"
+    )
+
+    lines1, labels1 = ax.get_legend_handles_labels()
+    lines2, labels2 = ax2.get_legend_handles_labels()
+    ax.legend(lines1 + lines2, labels1 + labels2, loc="upper right")
+
+    ax.grid(alpha=ChartDefaults.GRID_ALPHA)
+    plt.tight_layout()
+
+    return fig
+
