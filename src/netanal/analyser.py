@@ -7,8 +7,8 @@ from scapy.utils import PcapReader
 from netanal.constants import DefaultIPs, Ports
 from netanal.models import PacketInfo, Protocol
 
-
 def identify_protocol(packet: Packet) -> Protocol:
+    """ Identify the highest level protocol in the packet. """
     if packet.haslayer(DNS):
         return Protocol.DNS
 
