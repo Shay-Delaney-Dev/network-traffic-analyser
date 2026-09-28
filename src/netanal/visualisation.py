@@ -258,3 +258,46 @@ def save_chart(
         facecolor="white"
     )
     plt.close(fig)
+
+def generate_all_charts(
+    stats: CaptureStatistics,
+    output_dir: Path,
+    prefix: str = "capture",
+) -> list[Path]:
+    """ Generate all charts and save to output directory. """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    generated: list[Path] = []
+
+    if stats.protocol_distribution:
+        pie_path = output_dir / f"{prefix}_protocol_pie.png"
+        fig = create_protocol_pie_chart(stats)
+        save_chart(fig, pie_path)
+        generated.append(pie_path)
+
+        bar_path = output_dir / f"{prefix}_protocol_bar.png"
+        fig = create_protocol_bar_chart(stats)
+        save_chart(fig, bar_path)
+        generated.append(bar_path)
+
+    if stats.endpoints:
+        talkers_path = output_dir / f"{prefix}_top_talkers.png"
+        fig = create_top_talkers_chart(stats)
+        save_chart(fig, talkers_path)
+        generated.append(talkers_path)
+
+    if stats.bandwidth_samples:
+        bandwidth_path = output_dir / f"{prefix}_bandwidth.png"
+        fig = create_bandwidth_chart(stats)
+        save_chart(fig, bandwidth_path)
+        generated.append(bandwidth_path)
+
+    return generated
+
+__all__ = [
+    "create_bandwidth_chart",
+    "create_protocol_bar_chart",
+    "create_protocol_pie_chart",
+    "create_top_talkers_chart",
+    "generate_all_charts",
+    "save_chart",
+]
