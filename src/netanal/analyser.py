@@ -109,5 +109,29 @@ def extract_dns_info(packet: Packet) -> dict[str, str | list[str]] | None:
                 except (IndexError, AttributeError):
                     continue
         info["answers"] = answers
-        
+
     return info
+
+def get_packet_summary(packet: Packet) -> str:
+    """ Generate a human readable summary of a packet. """
+    info = extract_packet_info(packet)
+    if info is None:
+        return "Unknown packet"
+
+    summary_parts = [
+        f"{info.protocol.value}",
+        f"{info.src_ip}",
+    ]
+
+    if info.src_port:
+        summary_parts.append(f":{info.src_port}")
+
+    summary_parts.append(" -> ")
+    summary_parts.append(info.dst_ip)
+
+    if info.dst_port:
+        summary_parts.append(f":{info.dst_port}")
+
+    summary_parts.append(f" ({info.size} bytes)")
+
+    return "".join(summary_parts)
