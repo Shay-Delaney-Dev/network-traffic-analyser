@@ -51,3 +51,52 @@ def create_protocol_pie_chart(
     plt.tight_layout()
 
     return fig
+
+def create_protocol_bar_chart(
+        stats: CaptureStatistics,
+        title: str = "Protocol Distribution",
+) -> Figure:
+    """ Create a bar chart showing protocol distribution. """
+    fig, ax = plt.subplots(figsize=ChartDefaults.FIGSIZE_STANDARD)
+
+    protocols = sorted(
+        stats.protocol_distribution.keys(),
+        key=lambda p: stats.protocol_distribution[p],
+        reverse=True,
+    )
+    counts = [stats.protocol_distribution[p] for p in protocols]
+    colors = [_get_protocol_hex_color(p) for p in protocols]
+    labels = [p.value for p in protocols]
+
+    bars = ax.bar(
+        labels,
+        counts,
+        color=colors,
+        edgecolor="black",
+        linewidth=ChartDefaults.LINE_WIDTH_THIN,
+    )
+
+    for bar, count in zip(bars, counts, strict=False):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            bar.get_height() + max(counts) * 0.01,
+            f"{count:,}",
+            ha="center",
+            va="bottom",
+            fontsize=ChartDefaults.FONT_SIZE_SMALL,
+        )
+
+    ax.set_xlabel("Protocol", fontsize=ChartDefaults.FONT_SIZE_MEDIUM)
+    ax.set_ylabel(
+        "Packet Count",
+        fontsize=ChartDefaults.FONT_SIZE_MEDIUM
+    )
+    ax.set_title(
+        title,
+        fontsize=ChartDefaults.FONT_SIZE_LARGE,
+        fontweight="bold"
+    )
+    ax.grid(axis="y", alpha=ChartDefaults.GRID_ALPHA)
+    plt.tight_layout()
+
+    return fig
