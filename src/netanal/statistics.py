@@ -12,6 +12,29 @@ from netanal.models import (
     Protocol,
 )
 
+class StatisticsCollector:
+    """ Thread-safe collector with bandwidth sampling interval. """
+    def __init__(
+        self,
+        bandwidth_interval: float = CaptureDefaults.BANDWIDTH_SAMPLE_INTERVAL_SECONDS,
+    ) -> None:
+        """ Initialize statistics collector with bandwidth sampling interval. """
+        self._lock = threading.Lock()
+        self._bandwidth_interval = bandwidth_interval
+
+        self._start_time: float = 0.0
+        self._last_sample_time: float = 0.0
+        self._interval_bytes: int = 0
+        self._interval_packets: int = 0
+
+        self._total_packets: int = 0
+        self._total_bytes: int = 0
+        self._protocol_counts: dict[Protocol, int] = defaultdict(int)
+        self._protocol_bytes: dict[Protocol, int] = defaultdict(int)
+        self._endpoints: dict[str, EndpointStats] = {}
+        self._conversations: dict[tuple[str, str], ConversationStats] = {}
+        self._bandwidth_samples: list[BandwidthSample] = []
+
 def record_packet(self, packet: PacketInfo) -> None:
     with self._lock:
         self._total_packets += 1
