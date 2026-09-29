@@ -1,3 +1,21 @@
+"""
+Thread-safe statistics collection for packet capture analysis
+
+StatisticsCollector is called from a background consumer thread while
+the capture engine enqueues packets. All internal state is protected by
+a single threading.Lock. Bandwidth samples are taken on a configurable
+interval by comparing packet timestamps against the last sample name.
+
+Key exports:
+    StatisticsCollector - Thread-safe accumulator that builds CaptureStatistics from PacketInfo
+
+Connects to:
+    models.py - Imports BandwidthSample, CaptureStatistics, ConversationStats, EndpointStats, PacketInfo, Protocol.
+    constants.py - Imports CaptureDefaults for the default bandwidth sample interval.
+    capture.py - creates StatisticsCollector and calls record_packet() from the consumer thread.
+    main.py - creates StatisticsCollector to replay packets from a pcap file.
+"""
+
 import threading
 import time
 from collections import defaultdict
