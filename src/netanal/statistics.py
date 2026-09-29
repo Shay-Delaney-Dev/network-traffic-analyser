@@ -35,6 +35,12 @@ class StatisticsCollector:
         self._conversations: dict[tuple[str, str], ConversationStats] = {}
         self._bandwidth_samples: list[BandwidthSample] = []
 
+    def start(self) -> None:
+        """ Mark the start of a capture session. """
+        with self.lock:
+            self._start_time = time.time()
+            self._last_sample_time = self._start_time
+
 def record_packet(self, packet: PacketInfo) -> None:
     with self._lock:
         self._total_packets += 1
