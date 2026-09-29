@@ -109,3 +109,13 @@ class CaptureStatistics:
             proto: (count / self.total_packets) * 100
             for proto, count in self.protocol_distribution.items()
         }
+
+@dataclass(frozen=True, slots=True)
+class CaptureConfig:
+    """ Configuration for a packet capture session. """
+    interface: str | None = None
+    bpf_filter: str | None = None
+    packet_count: int | None = None
+    timeout_seconds: float | None = None
+    promiscuous: bool = True
+    store_packets: bool = False
