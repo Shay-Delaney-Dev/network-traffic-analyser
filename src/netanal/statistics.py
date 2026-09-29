@@ -152,3 +152,19 @@ class StatisticsCollector:
             self._endpoints = {}
             self._conversations = {}
             self._bandwidth_samples= []
+
+    @property
+    def packet_count(self) -> int:
+        """ Get current packet count (thread-safe) """
+        with self._lock:
+            return self._total_packets
+
+    @property
+    def byte_count(self) -> int:
+        """ Get current byte count (thread-safe) """
+        with self._lock:
+            return self._total_bytes
+
+__all__ = [
+    "StatisticsCollector"
+]
