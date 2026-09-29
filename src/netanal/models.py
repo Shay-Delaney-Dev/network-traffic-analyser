@@ -58,3 +58,54 @@ class BandwidthSample:
     timestamp: float
     bytes_per_second: float
     packets_per_second: float
+
+@dataclass(slots=True)
+class CaptureStatistics:
+    """ Aggregated statistics from a packet capture session. """
+    start_time: float = 0.0
+    end_time: float = 0.0
+    total_packets: int = 0
+    total_bytes: int = 0
+    protocol_distribution: dict[Protocol,
+                                int] = field(default_factory=dict)
+    protocol_bytes: dict[Protocol, int] = field(default_factory=dict)
+    endpoints: dict[str, EndpointStats] = field(default_factory=dict)
+    conversations: dict[tuple[str,
+                              str],
+                              ConversationStats] = field(default_factory=dict)
+    bandwidth_samples: list[BandwidthSample] = field (
+        default_factory=list
+    )
+
+    @property
+    def duration_seconds(self) -> float:
+        """ Calculate capture duration in seconds. """
+        if self.end_time <= self.start_time:
+            return 0.0
+        return self.end_time - self.start_time
+
+    @property
+    def average_bandwidth(self) -> float:
+        """ Calculate average bandwidth in bytes per second. """
+        duration = self.duration_seconds
+        if duration <= 0:
+            return 0.0
+        return self.total_bytes / duration
+
+    def get_top_talkers(self, limit: int = 10) -> list[EndpointStats]:
+        """ Return endpoints sorted by total bytes transferred."""
+        sorted_endpoints = sorted(
+            self.endpoints.values(),
+            key=lambda e: e.total_bytes,
+            reverse=True
+        )
+        return sorted_endpoints[: limit]
+
+    def get_protocol_percentages(self) -> dict[Protocol, float]:
+        """ Calculate protocol distribution as percentages. """
+        if self.total_packets == 0:
+            return {}
+        return {
+            proto: (count / self.total_packets) * 100
+            for proto, count in self.protocol_distribution.items()
+        }
