@@ -85,6 +85,26 @@ class StatisticsCollector:
             endpoint.packets_received += 1
             endpoint.bytes_received += received_bytes
 
+    def _update_conversation(
+        self,
+        src_ip: str,
+        dst_ip: str,
+        size: int,
+    ) -> None:
+        """ Update stats for a conversation between two endpoints. """
+        key = tuple(sorted([src_ip, dst_ip]))
+        conv_key = (key[0], key[1])
+
+        if conv_key not in self._conversations:
+            self._conversations[conv_key] = ConversationStats(
+                endpoint_a=conv_key[0],
+                endpoint_b=conv_key[1],
+            )
+
+        conv = self._conversations[conv_key]
+        conv.packets += 1
+        conv.bytes_total += size
+
 
     def _check_bandwidth_sample(self, timestamp: float) -> None:
         if timestamp - self._last_sample_time >= self._bandwidth_interval:
