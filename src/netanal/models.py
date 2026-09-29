@@ -43,3 +43,11 @@ class EndpointStats:
     def total_bytes(self) -> int:
         """ Calculate total bytes for this endpoint. """
         return self.bytes_sent + self.bytes_received
+
+@dataclass(slots=True)
+class ConversationStats:
+    """ Traffic stats for a conversation between two endpoints. """
+    endpoint_a: str
+    endpoint_b: str
+    packets: int = 0
+    bytes_total: int = 0
