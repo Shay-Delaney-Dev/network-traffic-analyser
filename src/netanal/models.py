@@ -119,3 +119,12 @@ class CaptureConfig:
     timeout_seconds: float | None = None
     promiscuous: bool = True
     store_packets: bool = False
+
+@dataclass(frozen=True, slots=True)
+class ExportOptions:
+    """ Options for exporting capture data. """
+    include_packets: bool = True
+    include_statistics: bool = True
+    include_endpoints: bool = True
+    include_conversations: bool = True
+    pretty_print: bool = True
