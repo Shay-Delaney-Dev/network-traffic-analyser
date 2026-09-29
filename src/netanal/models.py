@@ -51,3 +51,10 @@ class ConversationStats:
     endpoint_b: str
     packets: int = 0
     bytes_total: int = 0
+
+@dataclass(slots=True)
+class BandwidthSample:
+    """ Bandwidth measurement at a point in time. """
+    timestamp: float
+    bytes_per_second: float
+    packets_per_second: float
