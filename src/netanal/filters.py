@@ -1,3 +1,23 @@
+import ipaddress
+from dataclasses import dataclass
+from typing import Literal, Self
+
+from netanal.constants import PortRange, Ports
+from netanal.exceptions import ValidationError
+from netanal.models import Protocol
+
+BPF_PROTOCOL_MAP: dict[Protocol,
+                       str] = {
+                           Protocol.TCP: "tcp",
+                           Protocol.UDP: "udp",
+                           Protocol.ICMP: "icmp",
+                           Protocol.ARP: "arp",
+                           Protocol.DNS:
+                           f"udp port {Ports.DNS} or tcp port {Ports.DNS}",
+                           Protocol.HTTP: f"tcp port {Ports.HTTP}",
+                           Protocol.HTTPS: f"tcp port {Ports.HTTPS}"
+                       }
+
 @dataclass(slots = True)
 class FilterBuilder:
     _expressions: list[str]
