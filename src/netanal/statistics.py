@@ -122,3 +122,18 @@ class StatisticsCollector:
             self._interval_bytes = 0
             self._interval_packets = 0
             self._last_sample_time = timestamp
+
+    def get_statistics(self) -> CaptureStatistics:
+        """ Get current capture statistics snapshot (thread-safe). """
+        with self._lock:
+            return CaptureStatistics(
+                start_time=self._start_time,
+                end_time=time.time(),
+                total_packets=self._total_packets,
+                total_bytes=self._total_bytes,
+                protocol_distribution=dict(self._protocol_counts),
+                protocol_bytes=dict(self._protocol_bytes),
+                endpoints=dict(self._endpoints),
+                conversations=dict(self._conversations),
+                bandwidth_samples=list(self._bandwidth_samples),
+            )
