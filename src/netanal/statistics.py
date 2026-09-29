@@ -1,3 +1,17 @@
+import threading
+import time
+from collections import defaultdict
+
+from netanal.constants import CaptureDefaults
+from netanal.models import (
+    BandwidthSample,
+    CaptureStatistics,
+    ConversationStats,
+    EndpointStats,
+    PacketInfo,
+    Protocol,
+)
+
 def record_packet(self, packet: PacketInfo) -> None:
     with self._lock:
         self._total_packets += 1
