@@ -137,3 +137,18 @@ class StatisticsCollector:
                 conversations=dict(self._conversations),
                 bandwidth_samples=list(self._bandwidth_samples),
             )
+
+    def reset(self) -> None:
+        """ Reset all statistics to initial state. """
+        with self._lock:
+            self._start_time = 0.0
+            self._last_sample_time = 0.0
+            self._interval_bytes = 0
+            self._interval_packets = 0
+            self._total_packets = 0
+            self._total_bytes = 0
+            self._protocol_counts = defaultdict(int)
+            self._protocol_bytes = defaultdict(int)
+            self._endpoints = {}
+            self._conversations = {}
+            self._bandwidth_samples= []
