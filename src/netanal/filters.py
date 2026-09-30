@@ -1,3 +1,25 @@
+"""
+BPF filter builder for kernel-level packet filtering.
+
+Provides a FilterBuilder that assembles BPF expressions
+from typed method calls rather than raw strings. Validates
+all inputs before adding. build() method joins accumulated
+expressions with a logical (and/or) operator.
+
+Key exports:
+    FilterBuilder - Builder for BPF filter strings with validation.
+    BPF_PROTOCOL_MAP - Maps Protocol enum values to their BPF expressions.
+    combine_filters() - Joins a list of BPF strings with a logical operator.
+    protocol_to_bpf() - Converts a single Protocol to its BPF expression.
+    validate_bpf_filter() - Checks BPF syntax by compiling with Scapy.
+
+Connects to: 
+    models.py - imports Protocol for the BPF mapping.
+    constants.py - imports PortRange for validation bounds, Ports for DNS filter.
+    exceptions.py - raises ValidationError for invalid ports, IPs, and networks.
+    main.py - calls validate_bpf_filter() before starting a live capture.
+"""
+
 import ipaddress
 from dataclasses import dataclass
 from typing import Literal, Self
@@ -171,3 +193,10 @@ def validate_bpf_filter(filter_str: str) -> bool:
     except Exception:
         return False
 
+__all__ = [
+    "BPF_PROTOCOL_MAP",
+    "FilterBuilder",
+    "combine_filters",
+    "protocol_to_bpf",
+    "validate_bpf_filter",
+]
