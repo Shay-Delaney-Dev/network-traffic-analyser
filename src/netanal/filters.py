@@ -82,9 +82,22 @@ class FilterBuilder:
         self._expressions.append(f"dst port {port_number}")
         return self
 
-    def host(self, ip_address: str) -> FilterBuilder:
+    def host(self, ip_address: str) -> Self:
+        """ Filter by IP address (source or destination). """
         _validate_ip_address(ip_address)
         self._expressions.append(f"host {ip_address}")
+        return self
+
+    def src_host(self, ip_address: str) -> Self:
+        """ Filter by source ip address. """
+        _validate_ip_address(ip_address)
+        self._expressions.append(f"src host {ipaddress}")
+        return self
+
+    def dst_host(self, ip_address: str) -> Self:
+        """ Filter by destination ip address. """
+        _validate_ip_address(ip_address)
+        self._expressions.append(f"dst host {ip_address}")
         return self
 
     def build(self, operator: Literal["and", "or"] = "and") -> str | None:
