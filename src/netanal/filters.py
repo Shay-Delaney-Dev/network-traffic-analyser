@@ -132,10 +132,14 @@ class FilterBuilder:
         self._expressions.append(expression)
         return self
 
-
-
     def build(self, operator: Literal["and", "or"] = "and") -> str | None:
+        """ Build final BPF filter string combining all expressions. """
         if not self._expressions:
             return None
         return f" {operator} ".join(self._expressions)
+
+    def reset(self) -> Self:
+        """ Clear all filter expressions. """
+        self._expressions = []
+        return self
 
