@@ -115,6 +115,20 @@ class FilterBuilder:
         self._expressions.append(f"portrange {start}-{end}")
         return self
 
+    def not_port(self, port_number: int) -> Self:
+        """ Exclude traffic on specified port. """
+        _validate_port(port_number)
+        self._expressions.append(f"not port {port_number}")
+        return self
+
+    def not_host(self, ip_address: str) -> Self:
+        """ Exclude traffic to/from specified host. """
+        _validate_ip_address(ip_address)
+        self._expressions.append(f"not host {ip_address}")
+        return self
+
+
+
     def build(self, operator: Literal["and", "or"] = "and") -> str | None:
         if not self._expressions:
             return None
