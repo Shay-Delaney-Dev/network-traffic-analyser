@@ -24,9 +24,12 @@ def _validate_port(port_number: int) -> None:
             f"Port must be {PortRange.MIN}-{PortRange.MAX}, got {port_number}"
         )
 
-
-
-
+def _validate_ip_address(ip_address: str) -> None:
+    """ Validate IP address format. """
+    try:
+        ipaddress.ip_address(ip_address)
+    except ValueError as e:
+        raise ValidationError(f"Invalid IP address: {ip_address}") from e
 
 @dataclass(slots = True)
 class FilterBuilder:
