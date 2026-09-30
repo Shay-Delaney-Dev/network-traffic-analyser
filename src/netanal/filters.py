@@ -40,15 +40,28 @@ def _validate_network(network: str) -> None:
 
 @dataclass(slots = True)
 class FilterBuilder:
+    """ Builds BPF filter expressions for efficient kernel-level packet filtering. """
     _expressions: list[str]
 
     def __init__(self) -> None:
+        """ Initialise empty filter builder. """
         self._expressions = []
 
-    def protocol(self, proto: Protocol) -> FilterBuilder:
+    def protocol(self, proto: Protocol) -> Self:
+        """ Filter by protocol type using the Protocol enum. """
         bpf_expr = BPF_PROTOCOL_MAP.get(proto)
         if bpf_expr:
             self._expressions.append(f"({bpf_expr})")
+        return self
+
+    def protocols(self, protos: list[Protocol]) -> Self:
+        """ Filter by multiple protocols (OR logic)"""
+        bpf_exprs = [
+            BPF_PROTOCOL_MAP[p] for p in protos if p in BPF_PROTOCOL_MAP
+        ]
+        if bpf_exprs:
+            combined = " or ".join(f"({expr})" for expr in bpf_exprs)
+            self._expressions.append(f"({combined})")
         return self
 
     def port(self, port_number: int) -> FilterBuilder:
