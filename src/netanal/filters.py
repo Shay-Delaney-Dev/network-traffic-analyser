@@ -31,6 +31,13 @@ def _validate_ip_address(ip_address: str) -> None:
     except ValueError as e:
         raise ValidationError(f"Invalid IP address: {ip_address}") from e
 
+def _validate_network(network: str) -> None:
+    """ Validate network CIDR notation. """
+    try:
+        ipaddress.ip_network(network, strict=False)
+    except ValueError as e:
+        raise ValidationError(f"Invalid network: {network}") from e
+
 @dataclass(slots = True)
 class FilterBuilder:
     _expressions: list[str]
