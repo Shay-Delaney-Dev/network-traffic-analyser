@@ -143,3 +143,21 @@ class FilterBuilder:
         self._expressions = []
         return self
 
+def protocol_to_bpf(proto: Protocol) -> str | None:
+    """ Convert Protocol enum to BPF filter expression. """
+    return BPF_PROTOCOL_MAP.get(proto)
+
+def combine_filters(
+        filters: list[str],
+        operator: Literal["and",
+                          "or"] = "and",
+) -> str | None:
+    """ Combine multiple BPF filter strings with logical operator. """
+    valid_filters = [f for f in filters if f]
+    if not valid_filters:
+        return None
+    if len(valid_filters) == 1:
+        return valid_filters[0]
+    wrapped = [f"({f})" for f in valid_filters]
+    return f" {operator} ".join(wrapped)
+
