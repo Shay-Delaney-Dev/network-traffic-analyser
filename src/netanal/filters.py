@@ -100,6 +100,21 @@ class FilterBuilder:
         self._expressions.append(f"dst host {ip_address}")
         return self
 
+    def net(self, network: str) -> Self:
+        """ Filter by network (CIDR) notation. """
+        _validate_network(network)
+        self._expressions.append(f"net {self.network}")
+        return self
+
+    def port_range(self, start: int, end: int) -> Self:
+        """ Filter by port range. """
+        _validate_port(start)
+        _validate_port(end)
+        if start > end:
+            raise ValidationError(f"Invalid port range: {start}-{end}")
+        self._expressions.append(f"portrange {start}-{end}")
+        return self
+
     def build(self, operator: Literal["and", "or"] = "and") -> str | None:
         if not self._expressions:
             return None
