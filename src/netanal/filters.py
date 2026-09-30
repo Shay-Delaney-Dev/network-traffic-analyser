@@ -18,6 +18,16 @@ BPF_PROTOCOL_MAP: dict[Protocol,
                            Protocol.HTTPS: f"tcp port {Ports.HTTPS}"
                        }
 
+def _validate_port(port_number: int) -> None:
+    if not PortRange.MIN <= port_number <= PortRange.MAX:
+        raise ValidationError(
+            f"Port must be {PortRange.MIN}-{PortRange.MAX}, got {port_number}"
+        )
+
+
+
+
+
 @dataclass(slots = True)
 class FilterBuilder:
     _expressions: list[str]
@@ -46,8 +56,3 @@ class FilterBuilder:
             return None
         return f" {operator} ".join(self._expressions)
 
-    def _validate_port(port_number: int) -> None:
-        if not PortRange.MIN <= port_number <= PortRange.MAX:
-            raise ValidationError(
-                f"Port must be {PortRange.MIN}-{PortRange.MAX}, got {port_number}"
-            )
