@@ -64,9 +64,22 @@ class FilterBuilder:
             self._expressions.append(f"({combined})")
         return self
 
-    def port(self, port_number: int) -> FilterBuilder:
+    def port(self, port_number: int) -> Self:
+        """ Filter by port number (Source or destination). """
         _validate_port(port_number)
-        self._expressions.append(f"port {sport_number}")
+        self._expressions.append(f"port {port_number}")
+        return self
+
+    def src_port(self, port_number: int) -> Self:
+        """ Filter by source port. """
+        _validate_port(port_number)
+        self._expressions.append(f"src port {port_number}")
+        return self
+
+    def dst_port(self, port_number: int) -> Self:
+        """ Filter by destination port. """
+        _validate_port(port_number)
+        self._expressions.append(f"dst port {port_number}")
         return self
 
     def host(self, ip_address: str) -> FilterBuilder:
