@@ -161,3 +161,13 @@ def combine_filters(
     wrapped = [f"({f})" for f in valid_filters]
     return f" {operator} ".join(wrapped)
 
+def validate_bpf_filter(filter_str: str) -> bool:
+    """ Validate BPF filter syntax using Scapy. """
+    try:
+        from scapy.arch import compile_filter
+
+        compile_filter(filter_str)
+        return True
+    except Exception:
+        return False
+
