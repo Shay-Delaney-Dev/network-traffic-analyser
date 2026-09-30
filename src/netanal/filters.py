@@ -127,6 +127,11 @@ class FilterBuilder:
         self._expressions.append(f"not host {ip_address}")
         return self
 
+    def raw(self, expression: str) -> Self:
+        """ Add raw BPF expression for advanced filtering. """
+        self._expressions.append(expression)
+        return self
+
 
 
     def build(self, operator: Literal["and", "or"] = "and") -> str | None:
