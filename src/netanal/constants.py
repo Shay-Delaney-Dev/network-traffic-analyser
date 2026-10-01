@@ -70,3 +70,11 @@ class DefaultIPs:
     """ Default IP address values. """
     UNKNOWN: Final[str] = "0.0.0.0"
 
+class PortRange:
+    """ Valid port number range for validation. """
+    MIN: Final[int] = 0
+    MAX: Final[int] = 65535
+
+
+
+
