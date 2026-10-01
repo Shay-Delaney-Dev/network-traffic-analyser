@@ -23,3 +23,19 @@ class CaptureDefaults:
     QUEUE_TIMEOUT_SECONDS: Final[float] = 0.1
     THREAD_JOIN_TIMEOUT_SECONDS: Final[float] = 2.0
     BANDWIDTH_SAMPLE_INTERVAL_SECONDS: Final[float] = 1.0
+
+class ChartDefaults:
+    """ Default values for matplotlib chart generation. """
+    DPI: Final[int] = 150
+    FONT_SIZE_SMALL: Final[int] = 9
+    FONT_SIZE_MEDIUM: Final[int] = 11
+    FONT_SIZE_LARGE: Final[int] = 14
+    FIGSIZE_STANDARD: Final[tuple[int, int]] = (12, 6)
+    FIGSIZE_TALL: Final[tuple[int, int]] = (12, 8)
+    FIGSIZE_WIDE: Final[tuple[int, int]] = (14, 6)
+    FIGSIZE_SQUARE: Final[tuple[int, int]] = (10, 8)
+    LINE_WIDTH_THIN: Final[float] = 0.5
+    LINE_WIDTH_NORMAL: Final[int] = 2
+    MARKER_SIZE: Final[int] = 3
+    BAR_HEIGHT: Final[float] = 0.4
+    GRID_ALPHA: Final[float] = 0.3
