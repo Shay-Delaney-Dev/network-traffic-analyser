@@ -119,5 +119,3 @@ __all__ = [
     "ProtocolColors",
     "TimeConstants",
 ]
-
-
