@@ -39,3 +39,29 @@ class ChartDefaults:
     MARKER_SIZE: Final[int] = 3
     BAR_HEIGHT: Final[float] = 0.4
     GRID_ALPHA: Final[float] = 0.3
+
+class ProtocolColors:
+    """ Unified color scheme for both Rich console and matplotlib charts. """
+    RICH: Final[dict[str,
+                     str]] = {
+                         "TCP": "cyan",
+                         "UDP": "green",
+                         "ICMP": "yellow",
+                         "DNS": "magenta",
+                         "HTTP": "blue",
+                         "HTTPS": "blue",
+                         "ARP": "red",
+                         "OTHER": "white",
+                     }
+
+    HEX: Final[dict[str,
+                    str]] = {
+                        "TCP": "#3498db",
+                        "UDP": "#2ecc71",
+                        "ICMP": "#f1c40f",
+                        "DNS": "#9b59b6",
+                        "HTTP": "#e74c3c",
+                        "HTTPS": "#1abc9c",
+                        "ARP": "#e67e22",
+                        "OTHER": "#95a5a6",
+                    }
