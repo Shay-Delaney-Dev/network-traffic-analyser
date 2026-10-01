@@ -1,3 +1,31 @@
+"""
+Constants and config values for network traffic analyser.
+
+Groups all magic numbers and strings into named classes to avoid hardcoded
+values scattered throughout the codebase. Covers ports, byte units, chart sizing,
+protocol colours, and platform-specific paths. All values use Final annotations.
+
+Key exports:
+    Ports - Standard port numbers (HTTP=80, HTTPS=443, DNS=53).
+    TimeConstants - Seconds per minute and hour for duration formatting.
+    ByteUnits - Byte conversion factor and size unit labels.
+    CaptureDefaults - Queue size, timeouts, and bandwidth sample interval.
+    ChartDefaults - DPI, font sizes, figure dimensions, and line style values.
+    ProtocolColors - Rich console colors and matplotlib hex colors per protocol.
+    DefaultIPs - Fallback IP for unknown packet endpoints.
+    PortRange - Valid port range (0-65535).
+    NpcapPaths - Windows DLL paths for Npcap installation checks.
+
+Connects to:
+    filters.py - imports PortRange, Ports.
+    analyser.py - imports DefaultIPs, Ports.
+    capture.py - imports CaptureDefaults, NpcapPaths.
+    statistics.py - imports CaptureDefaults.
+    output.py - imports ByteUnits, ProtocolColors, TimeConstants.
+    visualisation.py - imports ByteUnits, ChartDefaults, ProtocolColors.
+"""
+
+
 from enum import IntEnum
 from typing import Final
 
@@ -79,5 +107,17 @@ class NpcapPaths:
     """ Windows Npcap installation paths for permission checking. """
     SYSTEM32: Final[str] = r"C:\Windows\System32\Npcap\wpcap.dll"
     SYSWOW64: Final[str] = r"C:\Windows\SysWOW64\Npcap\wpcap.dll"
+
+__all__ = [
+    "ByteUnits",
+    "CaptureDefaults",
+    "ChartDefaults",
+    "DefaultIPs",
+    "NpcapPaths",
+    "PortRange",
+    "Ports",
+    "ProtocolColors",
+    "TimeConstants",
+]
 
 
