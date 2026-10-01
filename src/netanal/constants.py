@@ -65,3 +65,8 @@ class ProtocolColors:
                         "ARP": "#e67e22",
                         "OTHER": "#95a5a6",
                     }
+
+class DefaultIPs:
+    """ Default IP address values. """
+    UNKNOWN: Final[str] = "0.0.0.0"
+
