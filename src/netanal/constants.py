@@ -75,6 +75,9 @@ class PortRange:
     MIN: Final[int] = 0
     MAX: Final[int] = 65535
 
-
+class NpcapPaths:
+    """ Windows Npcap installation paths for permission checking. """
+    SYSTEM32: Final[str] = r"C:\Windows\System32\Npcap\wpcap.dll"
+    SYSWOW64: Final[str] = r"C:\Windows\SysWOW64\Npcap\wpcap.dll"
 
 
