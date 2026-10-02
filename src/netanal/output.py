@@ -1,3 +1,29 @@
+"""
+Rich console output formatting for network traffic analysis.
+
+Handles al terminal display for capture sessions and analysis results.
+The console instance is created once with environment-aware settings for 
+CI, NO_COLOR, and non-TTY environments. Display functions cover streaming
+packet output, session summary panels, protocol tables, top talkers, and 
+bandwidth statistics. 
+
+Key exports:
+    console - Shared Rich Console instance created by get_console().
+    create_capture_progress() - Returns a Rich Progress bar for live capture display.
+    print_packet() - Streams a single packet line with protocol colour coding.
+    print_protocol_table() - Renders protocol disribution as a Rich table.
+    print_top_talkers() - Renders the busiest endpoints ranked by bytes.
+    print_capture_summary() - Renders session totals in a bordered panel.
+    print_bandwidth_stats() - Renders min/max/avg bandwidth as a table.
+    format_bytes() - Converts raw byte counts to human-readable strings.
+    format_duration() - Converts seconds to an hours/minutes/seconds string.
+
+Connects to:
+    models.py - imports CaptureStatistics, PacketInfo, Protocol.
+    constants.py - import ByteUnits, ProtocolColors, TimeConstants.
+    main.py - imports console and all print_* functions.
+"""
+
 import os
 import sys
 
@@ -194,3 +220,20 @@ def format_duration(seconds: float) -> str:
         TimeConstants.SECONDS_PER_MINUTE
     )
     return f"{hours}h {minutes}m"
+
+__all__ = [
+    "console",
+    "create_capture_progress",
+    "format_bytes",
+    "format_duration",
+    "get_console",
+    "print_bandwidth_stats",
+    "print_capture_summary",
+    "print_error",
+    "print_interfaces",
+    "print_packet",
+    "print_protocol_table",
+    "print_success",
+    "print_top_talkers",
+    "print_warning",
+]
