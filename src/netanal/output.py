@@ -172,3 +172,10 @@ def print_success(message: str) -> None:
     """ Print success message. """
     console.print(f"[green]Success:[/green] {message}")
 
+def format_bytes(num_bytes: int | float) -> str:
+    """ Format byte count with appropriate unit. """
+    for unit in ByteUnits.UNITS[:-1]:
+        if abs(num_bytes) < ByteUnits.BYTES_PER_KB:
+            return f"{num_bytes:.1f} {unit}"
+        num_bytes /= ByteUnits.BYTES_PER_KB
+    return f"{num_bytes:.1f} {ByteUnits.UNITS[-1]}"
