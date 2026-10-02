@@ -82,3 +82,28 @@ def print_protocol_table(stats: CaptureStatistics) -> None:
     console.print(table)
 
 
+def print_top_talkers(stats: CaptureStatistics, limit: int = 10) -> None:
+    """ Print top talkers table. """
+    table = Table(title=f"Top {limit} Talkers")
+    table.add_column("IP Address", style="cyan", justify="left")
+    table.add_column("Packets Sent", style="green", justify="right")
+    table.add_column("Packets Recv", style="yellow", justify="right")
+    table.add_column("Bytes Sent", style="blue", justify="right")
+    table.add_column("Bytes Recv", style="magenta", justify="right")
+    table.add_column("Total", style="white", justify="right")
+
+    top_talkers = stats.get_top_talkers(limit)
+
+    for endpoint in top_talkers:
+        table.add_row(
+            endpoint.ip_address,
+            f"{endpoint.packets_sent:,}",
+            f"{endpoint.packets_received:,}",
+            format_bytes(endpoint.bytes_sent),
+            format_bytes(endpoint.bytes_received),
+            format_bytes(endpoint.total_bytes),
+        )
+
+    console.print(table)
+
+
