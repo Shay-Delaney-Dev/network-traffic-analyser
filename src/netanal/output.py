@@ -149,4 +149,13 @@ def print_bandwidth_stats(stats: CaptureStatistics) -> None:
 
     console.print(table)
 
+def print_interfaces(interfaces: list[str]) -> None:
+    """ Print available network interfaces. """
+    table = Table(title="Available Interfaces")
+    table.add_column("Interface", style="cyan")
+
+    for iface in interfaces:
+        table.add_row(iface)
+
+    console.print(table)
 
