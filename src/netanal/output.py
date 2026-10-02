@@ -106,4 +106,25 @@ def print_top_talkers(stats: CaptureStatistics, limit: int = 10) -> None:
 
     console.print(table)
 
+def print_capture_summary(stats: CaptureStatistics) -> None:
+    """ Print capture session summary panel. """
+    duration = stats.duration_seconds
+    avg_bandwidth = stats.average_bandwidth
+
+    summary_lines = [
+        f"Duration: {format_duration(duration)}",
+        f"Total Packets: {stats.total_packets:,}",
+        f"Total Bytes: {format_bytes(stats.total_bytes)}",
+        f"Average Bandwidth: {format_bytes(avg_bandwidth)}/s",
+        f"Unique Endpoints: {len(stats.endpoints)}",
+        f"Protocols Seen: {len(stats.protocol_distribution)}",
+    ]
+
+    panel = Panel(
+        "\n".join(summary_lines),
+        title="[bold]Capture Summary[/bold]",
+        border_style="green",
+    )
+    console.print(panel)
+
 
