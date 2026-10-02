@@ -159,3 +159,7 @@ def print_interfaces(interfaces: list[str]) -> None:
 
     console.print(table)
 
+def print_error(message: str) -> None:
+    """ Print error message. """
+    console.print(f"[red]Error:[/red] {message}")
+
