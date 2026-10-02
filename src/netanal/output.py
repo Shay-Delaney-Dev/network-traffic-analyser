@@ -57,3 +57,28 @@ def print_packet(packet: PacketInfo) -> None:
         f"{port_info:20} "
         f"[dim]{packet.size:6} bytes[/dim]"
     )
+
+def print_protocol_table(stats: CaptureStatistics) -> None:
+    """ Print protocol distribution table. """
+    table = Table(title="Protocol Distribution")
+    table.add_column("Protocol", style="cyan", justify="left")
+    table.add_column("Packets", style="green", justify="right")
+    table.add_column("Bytes", style="yellow", justify="right")
+    table.add_column("Percentage", style="magenta", justify="right")
+
+    percentages = stats.get_protocol_percentages()
+
+    for protocol in sorted(stats.protocol_distribution.keys(), key=lambda p: p.value):
+        count = stats.protocol_distribution[protocol]
+        bytes_count = stats.protocol_bytes.get(protocol, 0)
+        pct = percentages.get(protocol, 0.0)
+        table.add_row(
+            protocol.value,
+            f"{count:,}",
+            format_bytes(bytes_count),
+            f"{pct:.1f}%",
+        )
+
+    console.print(table)
+
+
