@@ -179,3 +179,20 @@ def format_bytes(num_bytes: int | float) -> str:
             return f"{num_bytes:.1f} {unit}"
         num_bytes /= ByteUnits.BYTES_PER_KB
     return f"{num_bytes:.1f} {ByteUnits.UNITS[-1]}"
+
+def format_duration(seconds: float) -> str:
+    """
+    Format duration in human-readable form
+    """
+    if seconds < TimeConstants.SECONDS_PER_MINUTE:
+        return f"{seconds:.1f}s"
+    if seconds < TimeConstants.SECONDS_PER_HOUR:
+        minutes = int(seconds // TimeConstants.SECONDS_PER_MINUTE)
+        secs = seconds % TimeConstants.SECONDS_PER_MINUTE
+        return f"{minutes}m {secs:.1f}s"
+    hours = int(seconds // TimeConstants.SECONDS_PER_HOUR)
+    minutes = int(
+        (seconds % TimeConstants.SECONDS_PER_HOUR) //
+        TimeConstants.SECONDS_PER_MINUTE
+    )
+    return f"{hours}h {minutes}m"
