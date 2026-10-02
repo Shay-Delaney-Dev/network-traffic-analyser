@@ -38,3 +38,8 @@ def create_capture_progress() -> Progress:
         console=console,
         transient=True,
     )
+
+def _get_protocol_color(protocol: Protocol) -> str:
+    """ Get rich console color for a protocol. """
+    return ProtocolColors.RICH.get(protocol.value, "white")
+
