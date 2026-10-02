@@ -76,3 +76,31 @@ def packet_to_dict(packet: PacketInfo) -> dict[str, Any]:
         "src_mac": packet.src_mac,
         "dst_mac": packet.dst_mac,
     }
+
+def export_to_json(
+    stats: CaptureStatistics,
+    filepath: Path,
+    packets: list[PacketInfo] | None = None,
+    options: ExportOptions | None = None, 
+) -> None:
+    """ Export capture data to JSON file. """
+    if options is None:
+        options = ExportOptions()
+
+    data: dict[str, Any] = {}
+
+    if options.include_statistics:
+        stats_dict = statistics_to_dict(stats)
+        if not options.include_endpoints:
+            stats_dict.pop("endpoints", None)
+        if not options.include_conversations:
+            stats_dict.pop("conversations", None)
+        data["statistics"] = stats_dict
+
+    if options.include_packets and packets:
+        data["packets"] = [packet_to_dict(p) for p in packets]
+
+    indent = 2 if options.pretty_print else None
+
+    with filepath.open("w", encoding="utf-8") as f:
+        json.dump(data, f, indent=indent)
