@@ -181,9 +181,7 @@ def format_bytes(num_bytes: int | float) -> str:
     return f"{num_bytes:.1f} {ByteUnits.UNITS[-1]}"
 
 def format_duration(seconds: float) -> str:
-    """
-    Format duration in human-readable form
-    """
+    """ Format duration in human-readable form. """
     if seconds < TimeConstants.SECONDS_PER_MINUTE:
         return f"{seconds:.1f}s"
     if seconds < TimeConstants.SECONDS_PER_HOUR:
