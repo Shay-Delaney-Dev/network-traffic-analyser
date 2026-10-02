@@ -43,3 +43,17 @@ def _get_protocol_color(protocol: Protocol) -> str:
     """ Get rich console color for a protocol. """
     return ProtocolColors.RICH.get(protocol.value, "white")
 
+def print_packet(packet: PacketInfo) -> None:
+    """ Print single packet information. """
+    color = _get_protocol_color(packet.protocol)
+    port_info = ""
+
+    if packet.src_port and packet.dst_port:
+        port_info = f":{packet.src_port} -> :{packet.dst_port}"
+
+    console.print(
+        f"[{color}]{packet.protocol.value:5}[/{color}] "
+        f"{packet.src_ip:15} -> {packet.dst_ip:15} "
+        f"{port_info:20} "
+        f"[dim]{packet.size:6} bytes[/dim]"
+    )
