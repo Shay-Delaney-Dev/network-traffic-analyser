@@ -181,3 +181,48 @@ def export_protocol_summary_csv(
                     "percentage": f"{percentages.get(protocol, 0.0):.2f}",
                 }
             )
+
+def load_from_json(filepath: Path) -> tuple[CaptureStatistics | None, list[PacketInfo]]:
+    """ Load capture data from JSON file. """
+    with filepath.open(encoding="utf-8") as f:
+        data = json.load(f)
+
+    stats = None
+    packets: list[PacketInfo] = []
+
+    if "statistics" in data:
+        stats_data = data["statistics"]
+        stats = CaptureStatistics(
+            start_time=stats_data.get("start_time",0.0),
+            end_time=stats_data.get("end_time",0.0),
+            total_packets=stats_data.get("total_packets",0),
+            total_bytes=stats_data.get("total_bytes",0),
+        )
+
+        for proto_name, count in stats_data.get("protocol_distribution", {}).items():
+            try:
+                proto = Protocol(proto_name)
+                stats.protocol_distribution[proto] = count
+            except ValueError:
+                pass
+
+    if "packets" in data:
+        for pkt_data in data["packets"]:
+            try:
+                proto = Protocol(pkt_data.get("protocol", "OTHER"))
+                packet = PacketInfo(
+                    timestamp=pkt_data.get("timestamp",0.0),
+                    src_ip=pkt_data.get("src_ip",""),
+                    dst_ip=pkt_data.get("dst_ip",""),
+                    protocol=proto,
+                    size=pkt_data.get("size",0),
+                    src_port=pkt_data.get("src_port"),
+                    dst_port=pkt_data.get("dst_port"),
+                    src_mac=pkt_data.get("src_mac"),
+                    dst_mac=pkt_data.get("dst_mac"),
+                )
+                packets.append(packet)
+            except (KeyError, ValueError):
+                pass
+
+    return stats, packets
