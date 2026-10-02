@@ -127,4 +127,26 @@ def print_capture_summary(stats: CaptureStatistics) -> None:
     )
     console.print(panel)
 
+def print_bandwidth_stats(stats: CaptureStatistics) -> None:
+    """ Print bandwidth statistics. """
+    if not stats.bandwidth_samples:
+        console.print("[yellow]No bandwidth samples recorded[/yellow]")
+        return
+
+    samples = stats.bandwidth_samples
+    max_bps = max(s.bytes_per_second for s in samples)
+    min_bps = min(s.bytes_per_second for s in samples)
+    avg_bps = sum(s.bytes_per_second for s in samples) / len(samples)
+
+    table = Table(title="Bandwidth Statistics")
+    table.add_column("Metric", style="cyan")
+    table.add_column("Value", style="green", justify="right")
+
+    table.add_row("Peak", f"{format_bytes(max_bps)}/s")
+    table.add_row("Minimum", f"{format_bytes(min_bps)}/s")
+    table.add_row("Average", f"{format_bytes(avg_bps)}/s")
+    table.add_row("Samples", f"{len(samples)}")
+
+    console.print(table)
+
 
