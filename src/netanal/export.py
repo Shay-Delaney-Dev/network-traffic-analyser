@@ -131,3 +131,31 @@ def export_to_csv(
             for packet in packets:
                 writer.writerow(packet_to_dict(packet))
 
+def export_endpoints_csv(stats: CaptureStatistics, filepath: Path) -> None:
+    """ Export endpoint statistics to CSV file. """
+    fieldnames = [
+        "ip_address",
+        "packets_sent",
+        "packets_received",
+        "bytes_sent",
+        "bytes_received",
+        "total_packets",
+        "total_bytes",
+    ]
+
+    with filepath.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for endpoint in stats.endpoints.values():
+            writer.writerow(
+                {
+                    "ip_address": endpoint.ip_address,
+                    "packets_sent": endpoint.packets_sent,
+                    "packets_received": endpoint.packets_received,
+                    "bytes_sent": endpoint.bytes_sent,
+                    "bytes_received": endpoint.bytes_received,
+                    "total_packets": endpoint.total_packets,
+                    "total_bytes": endpoint.total_bytes,
+                }
+            )
