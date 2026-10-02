@@ -27,3 +27,14 @@ def get_console() -> Console:
 
 console = get_console()
 
+def create_capture_progress() -> Progress:
+    """ Create progress display for packet capture. """
+    return Progress(
+        SpinnerColumn(),
+        TextColumn("[progress.description]{task.description}"),
+        BarColumn(),
+        TaskProgressColumn(),
+        TimeElapsedColumn(),
+        console=console,
+        transient=True,
+    )
