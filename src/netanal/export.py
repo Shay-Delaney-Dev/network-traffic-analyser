@@ -62,3 +62,17 @@ def statistics_to_dict(stats: CaptureStatistics) -> dict[str, Any]:
         "conversations": conversations,
         "bandwidth_samples": bandwidth_samples,
     }
+
+def packet_to_dict(packet: PacketInfo) -> dict[str, Any]:
+    """ Convert PacketInfo to JSON-serializable dictionary. """
+    return {
+        "timestamp": packet.timestamp,
+        "src_ip": packet.src_ip,
+        "dst_ip": packet.dst_ip,
+        "protocol": packet.protocol.value,
+        "size": packet.size,
+        "src_port": packet.src_port,
+        "dst_port": packet.dst_port,
+        "src_mac": packet.src_mac,
+        "dst_mac": packet.dst_mac,
+    }
