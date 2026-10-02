@@ -159,3 +159,25 @@ def export_endpoints_csv(stats: CaptureStatistics, filepath: Path) -> None:
                     "total_bytes": endpoint.total_bytes,
                 }
             )
+
+def export_protocol_summary_csv(
+    stats: CaptureStatistics,
+    filepath: Path
+) -> None:
+    """ Export protocol distribution to CSV file. """
+    fieldnames = ["protocol", "packets", "bytes", "percentage"]
+    percentages = stats.get_protocol_percentages()
+
+    with filepath.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        for protocol, count in stats.protocol_distribution.items():
+            writer.writerow(
+                {
+                    "protocol": protocol.value,
+                    "packets": count,
+                    "bytes": stats.protocol_bytes.get(protocol,0),
+                    "percentage": f"{percentages.get(protocol, 0.0):.2f}",
+                }
+            )
