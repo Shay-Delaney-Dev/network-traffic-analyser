@@ -163,3 +163,12 @@ def print_error(message: str) -> None:
     """ Print error message. """
     console.print(f"[red]Error:[/red] {message}")
 
+def print_warning(message: str) -> None:
+    """ Print warning message. """
+    console.print(f"[yellow]Warning:[/yellow] {message}")
+
+
+def print_success(message: str) -> None:
+    """ Print success message. """
+    console.print(f"[green]Success:[/green] {message}")
+
