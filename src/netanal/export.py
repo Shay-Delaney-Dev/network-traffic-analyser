@@ -104,3 +104,30 @@ def export_to_json(
 
     with filepath.open("w", encoding="utf-8") as f:
         json.dump(data, f, indent=indent)
+
+def export_to_csv(
+        stats: CaptureStatistics,
+        filepath: Path,
+        packets: list[PacketInfo] | None = None,
+) -> None:
+    """ Export packet data to CSV file. """
+    fieldnames = [
+        "timestamp",
+        "src_ip",
+        "dst_ip",
+        "protocol",
+        "size",
+        "src_port",
+        "dst_port",
+        "src_mac",
+        "dst_mac",
+    ]
+
+    with filepath.open("w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+
+        if packets:
+            for packet in packets:
+                writer.writerow(packet_to_dict(packet))
+
